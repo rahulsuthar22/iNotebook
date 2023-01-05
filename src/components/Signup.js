@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import NoteContext from "../context/Notes/noteContext";
 
 const Signup = (props) => {
+  const context = useContext(NoteContext);
+  const { host } = context;
   const { showAlert } = props;
   const [credential, setCredential] = useState({ name: "", email: "", password: "" });
   const navigate = useNavigate();
@@ -14,7 +17,7 @@ const Signup = (props) => {
       Array.isArray(credential.email) ? credential.email[0] : credential.email,
       Array.isArray(credential.password) ? credential.password[0] : credential.password
     );
-    const response = await fetch("http://localhost:5000/api/auth/createuser", {
+    const response = await fetch(`${host}/api/auth/createuser`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

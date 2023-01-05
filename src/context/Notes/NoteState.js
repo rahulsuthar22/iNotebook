@@ -17,7 +17,8 @@ const NoteState = (props) => {
 
   // deploying the fake data
   const notesInitial = [];
-  const host = "http://localhost:5000";
+  // const host = "http://localhost:5000";
+  const host = "http://192.168.43.28:5000";
   const [notes, setNotes] = useState(notesInitial);
 
   const getAllNotes = async () => {
@@ -100,7 +101,7 @@ const NoteState = (props) => {
     );
   };
 
-  return <NoteContext.Provider value={{ notes, setNotes, addNote, updateNote, deleteNote, getAllNotes }}>{props.children}</NoteContext.Provider>;
+  return <NoteContext.Provider value={{ notes, setNotes, addNote, updateNote, deleteNote, getAllNotes, host }}>{props.children}</NoteContext.Provider>;
 };
 
 export default NoteState;
