@@ -6,6 +6,7 @@ const bcrypt = require("bcryptjs");
 const fetchuser = require("../middleware/fetchuser.js");
 const jwt = require("jsonwebtoken");
 const JWT_SECRET = "Rahul";
+const success = false;
 
 //Route:1 Create a new user using : /api/auth/createUser
 router.post(
@@ -14,9 +15,10 @@ router.post(
   async (req, res) => {
     // If there are errors, return bad request and error
     const error = validationResult(req);
+    // const success = false;
 
     if (!error.isEmpty()) {
-      return res.status(400).json({ error: error.array() });
+      return res.status(400).json({ error: error.array(), success });
     }
 
     try {
@@ -47,10 +49,10 @@ router.post(
       const authToken = jwt.sign(data, JWT_SECRET);
 
       // res.json(user);
-      res.json({ authToken });
+      res.json({ success: true, authToken });
     } catch (err) {
       console.log(err);
-      res.status(500).json({ error: "Interanal Server Error", msg: err.message });
+      res.status(500).json({ success: false, error: "Interanal Server Error", msg: err.message });
     }
   }
 );
@@ -61,7 +63,7 @@ router.post("/login", [body("email", "Enter the valid email").isEmail(), body("p
   // If there are errors, return bad request and error
   const error = validationResult(req);
   if (!error.isEmpty()) {
-    return res.status(400).json({ error: error.array() });
+    return res.status(400).json({ success, error: error.array() });
   }
 
   try {
@@ -73,18 +75,14 @@ router.post("/login", [body("email", "Enter the valid email").isEmail(), body("p
 
     //If user does not exists , give error
     if (!user) {
-      return res.status(400).json({
-        err: "Please try to login with the correct credentials",
-      });
+      return res.status(400).json({ success, err: "Please try to login with the correct credentials" });
     }
 
     //Comparing the password using the bcrypt.compare() function and checking that password match or not
     const passwordCompare = await bcrypt.compare(password, user.password);
     // console.log(passwordCompare);
     if (!passwordCompare) {
-      return res.status(400).json({
-        err: "Please try to login with the correct credentials",
-      });
+      return res.status(400).json({ success, err: "Please try to login with the correct credentials" });
     }
 
     const data = {
@@ -94,9 +92,10 @@ router.post("/login", [body("email", "Enter the valid email").isEmail(), body("p
     };
 
     const authToken = jwt.sign(data, JWT_SECRET);
-    res.json({ authToken });
+    res.json({ success: true, authToken });
   } catch (err) {
     res.status(500).json({
+      success,
       err: "Internal Server Error",
       msg: err.message,
     });
@@ -108,10 +107,10 @@ router.post("/getuser", fetchuser, async (req, res) => {
   try {
     userId = req.user.id;
     const user = await User.findById(userId).select("-password");
-    res.send(user);
+    res.send(success, user);
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("Internal server error");
+    res.status(500).send({ success, err: "Internal server error" });
   }
 });
 
